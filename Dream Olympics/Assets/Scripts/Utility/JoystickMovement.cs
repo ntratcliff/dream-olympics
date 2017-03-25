@@ -18,7 +18,7 @@ public class JoystickMovement : MinigameBahaviour
     {
         get
         {
-            return Mathf.Abs(GetComponent<Rigidbody>().velocity.y) > InAirThreshold;
+            return Mathf.Abs(GetComponent<Rigidbody>().velocity.y) > InAirThreshold; //TODO: raycast down to determine if in air
         }
     }
 
@@ -64,7 +64,7 @@ public class JoystickMovement : MinigameBahaviour
             {
 
             }
-            else if(jumpVal < lastJumpVal && inAir && !veloCutThisJump) // first time jump is released
+            else if(jumpVal < lastJumpVal && rb.velocity.y > 0 && !veloCutThisJump) // first time jump is released
             {
                 Debug.Log("Jump released!");
                 // cut velocity in half
