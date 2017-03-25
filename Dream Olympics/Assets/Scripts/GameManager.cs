@@ -7,6 +7,12 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     /// <summary>
+    /// Checked if there is already a loaded scene in the editor
+    /// </summary>
+    public bool Debug;
+    public string ManagerSceneName = "Main";
+
+    /// <summary>
     /// Minigame scene names, to be loaded additively
     /// </summary>
     public string[] Minigames;
@@ -25,8 +31,20 @@ public class GameManager : MonoBehaviour
     private bool minigameLoading;
     private bool minigameLoaded;
 
+    private Scene managerScene;
+
     void Awake()
     {
+
+    }
+
+    void Start()
+    {
+        if (Debug)
+        {
+            // initialize the current scene
+            initializeScene();   
+        }   
     }
 
     // Update is called once per frame
@@ -40,11 +58,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator unloadCurrentMinigame()
     {
-        Debug.Log("Unloading current scene...");
+        UnityEngine.Debug.Log("Unloading current scene...");
 
         // TODO: get our player controllers back before unloading
         // dereference any objects referenced in the scene
-        MinigameObject = null; 
+        MinigameObject = null;
 
         AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(Minigames[CurrentMinigame]);
 
@@ -65,30 +83,39 @@ public class GameManager : MonoBehaviour
         if (minigameLoaded)
             yield return unloadCurrentMinigame();
 
-        Debug.Log("Loading scene: " + Minigames[index]);
+        UnityEngine.Debug.Log("Loading scene: " + Minigames[index]);
 
         CurrentMinigame = index;
         minigameLoading = true;
 
         // start additive scene load
-        AsyncOperation loadOperation = SceneManager.LoadSceneAsync("Scenes/Minigames/"+Minigames[index], LoadSceneMode.Additive);
+        AsyncOperation loadOperation = SceneManager.LoadSceneAsync("Scenes/Minigames/" + Minigames[index], LoadSceneMode.Additive);
 
-        while(!loadOperation.isDone)
+        while (!loadOperation.isDone)
         {
             //TODO: show loading bar and update progress
             yield return new WaitForEndOfFrame();
         }
 
-        minigameLoaded = true;
+        yield return new WaitForEndOfFrame();
 
-        Debug.Log("Scene loaded! Sending Init message...");
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(Minigames[index]));
+
+        UnityEngine.Debug.Log("Scene loaded! Initializing...");
+
+        // scene has finished loading, initialize
+        initializeScene();
+    }
+
+    private void initializeScene()
+    {
+        minigameLoaded = true;
 
         // get Minigame object
         MinigameObject = GameObject.Find("Minigame");
         if (!MinigameObject)
-            Debug.LogError("Could not find Minigame object in scene!");
+            UnityEngine.Debug.LogError("Could not find Minigame object in scene!");
 
-        // scene has finished loading, initialize
         sendInitMessage();
     }
 
@@ -112,7 +139,7 @@ public class GameManager : MonoBehaviour
     {
         ExecuteEvents.Execute(root, null, callback);
 
-        for (int i = 0; i < root.transform.childCount; i++)
+        for (int i = 0; root && i < root.transform.childCount; i++)
         {
             executeRecursive(root.transform.GetChild(i).gameObject, callback);
         }
