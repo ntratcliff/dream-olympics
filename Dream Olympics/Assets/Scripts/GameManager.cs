@@ -115,10 +115,8 @@ public class GameManager : MonoBehaviour
         // scene has finished loading, initialize
         initializeScene();
 
-        if (Debug)
-        {
-            sendStartMessage();
-        }
+        // TODO: move this to title card eventually
+        sendStartMessage();
     }
 
     private void initializeScene()
