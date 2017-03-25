@@ -15,20 +15,20 @@ public class TestLog : MinigameBahaviour
     {
         base.StartGame();
 
-        Debug.Log(string.Format("{0}: Init!", name));
+        Debug.Log(string.Format("{0}: Start!", name));
     }
 
     public override void PauseGame()
     {
         base.PauseGame();
 
-        Debug.Log(string.Format("{0}: Init!", name));
+        Debug.Log(string.Format("{0}: Pause!", name));
     }
 
     public override void ResumeGame()
     {
         base.ResumeGame();
 
-        Debug.Log(string.Format("{0}: Init!", name));
+        Debug.Log(string.Format("{0}: Resume!", name));
     }
 }

@@ -11,6 +11,8 @@ public class PlayerInfo : MonoBehaviour
     
     public float GetAxis(string axis)
     {
-        return Input.GetAxis("P" + PlayerNum + " " + axis);
+        string playerAxis = string.Format("P{0} {1}", PlayerNum, axis);
+        Debug.Log("Getting axis: " + playerAxis);
+        return Input.GetAxis(playerAxis);
     }   
 }

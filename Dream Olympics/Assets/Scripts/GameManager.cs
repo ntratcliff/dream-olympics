@@ -30,8 +30,10 @@ public class GameManager : MonoBehaviour
 
     private bool minigameLoading;
     private bool minigameLoaded;
+    private bool minigameRunning;
 
     private Scene managerScene;
+
 
     void Awake()
     {
@@ -43,7 +45,8 @@ public class GameManager : MonoBehaviour
         if (Debug)
         {
             // initialize the current scene
-            initializeScene();   
+            initializeScene();
+            sendStartMessage();
         }   
     }
 
@@ -59,6 +62,12 @@ public class GameManager : MonoBehaviour
     private IEnumerator unloadCurrentMinigame()
     {
         UnityEngine.Debug.Log("Unloading current scene...");
+
+        if (minigameRunning)
+        {
+            UnityEngine.Debug.LogWarning("Unloading minigame while the game is still running!");
+            sendPauseMessage();
+        }
 
         // TODO: get our player controllers back before unloading
         // dereference any objects referenced in the scene
@@ -105,6 +114,11 @@ public class GameManager : MonoBehaviour
 
         // scene has finished loading, initialize
         initializeScene();
+
+        if (Debug)
+        {
+            sendStartMessage();
+        }
     }
 
     private void initializeScene()
@@ -117,6 +131,8 @@ public class GameManager : MonoBehaviour
             UnityEngine.Debug.LogError("Could not find Minigame object in scene!");
 
         sendInitMessage();
+
+        
     }
 
     /// <summary>
@@ -151,6 +167,18 @@ public class GameManager : MonoBehaviour
     private void sendInitMessage()
     {
         sendMinigameMessage((x, y) => x.Init(this));
+    }
+
+    private void sendStartMessage()
+    {
+        sendMinigameMessage((x, y) => x.StartGame());
+        minigameRunning = true;
+    }
+
+    private void sendPauseMessage()
+    {
+        sendMinigameMessage((x, y) => x.PauseGame());
+        minigameRunning = false;
     }
 
     public void LoadTestMinigame()
