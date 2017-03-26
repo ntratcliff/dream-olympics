@@ -23,6 +23,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public int CurrentMinigame = -1;
 
+    /// <summary>
+    /// How many seconds before inactive players are removed from the game on the scoreboard
+    /// </summary>
+    public float PlayerConfirmTime = 3f;
+
     public float ShowScoreboardDelay = 1f;
 
     /// <summary>
@@ -206,6 +211,7 @@ public class GameManager : MonoBehaviour
 
         PlayerInfo[] players = GetComponentsInChildren<PlayerInfo>();
         int playersConfirmed = 0;
+        float confirmTime = 0f;
         while (playersConfirmed < players.Length)  // wait for players to confirm
         {
             playersConfirmed = 0;
@@ -220,7 +226,30 @@ public class GameManager : MonoBehaviour
                 else
                     players[i].ScoreboardName.color = DefaultNameColor;
             }
+
             yield return new WaitForEndOfFrame();
+
+            if(playersConfirmed >= 2 
+                && playersConfirmed < players.Length
+                && confirmTime < PlayerConfirmTime) // increment counter
+            {
+                confirmTime += Time.deltaTime;
+            }
+            else if(confirmTime >= PlayerConfirmTime) // remove inactive players and start game
+            {
+                for(int i = 0; i < players.Length; i++)
+                {
+                    if(players[i].GetAxis("Action") == 0)
+                    {
+                        players[i].gameObject.SetActive(false);
+                    }
+                }
+                break;
+            }
+            else // reset timer
+            {
+                confirmTime = 0;
+            }
         }
 
         // fade out scoreboard
