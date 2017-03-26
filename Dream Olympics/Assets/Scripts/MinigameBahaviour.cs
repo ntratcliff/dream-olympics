@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MinigameBahaviour : MonoBehaviour, IMinigameBehaviour
 {
-    private bool _gameRunning;
+    private bool _gameRunning = false;
     private GameManager _manager;
 
     /// <summary>
