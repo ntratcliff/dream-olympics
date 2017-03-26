@@ -47,9 +47,6 @@ public class FadeCanvasGroup : MonoBehaviour
         target = 0f;
         lerpTime = FadeOutTime;
         startFade();
-
-        // unselect any elements on this form
-        EventSystem.current.SetSelectedGameObject(null);
     }
 
     public void FadeIn()

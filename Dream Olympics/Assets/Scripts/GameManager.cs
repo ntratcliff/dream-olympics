@@ -80,6 +80,13 @@ public class GameManager : MonoBehaviour
         if (pauseMenu.alpha != 0)
             pauseMenu.GetComponent<FadeCanvasGroup>().SetAlpha(0);
 
+        if (mainMenu.alpha == 1)
+        {
+            // focus start button
+            Transform startButton = mainMenu.transform.FindChild("Start Button");
+            EventSystem.current.SetSelectedGameObject(startButton.gameObject);
+        }
+
         if (Debug)
         {
             // initialize the current scene
@@ -398,11 +405,17 @@ public class GameManager : MonoBehaviour
         hidePauseMenu();
 
         mainMenu.GetComponent<FadeCanvasGroup>().FadeIn();
+
+        Transform startButton = mainMenu.transform.FindChild("Start Button");
+        EventSystem.current.SetSelectedGameObject(startButton.gameObject);
+
         StartCoroutine(hideScoreboardDelay(mainMenu.GetComponent<FadeCanvasGroup>().FadeInTime));
     }
 
     public void MainMenuStart()
     {
+        EventSystem.current.SetSelectedGameObject(null);
+
         // TODO: show some intermediary player join level
         scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
         float delay = scoreboard.GetComponent<FadeCanvasGroup>().FadeInTime;
@@ -410,6 +423,7 @@ public class GameManager : MonoBehaviour
 
         // TODO: shuffle minigames
         StartCoroutine(loadMinigame(0, delay));
+
     }
 
     private IEnumerator hideMainMenuDelay(float delay)
