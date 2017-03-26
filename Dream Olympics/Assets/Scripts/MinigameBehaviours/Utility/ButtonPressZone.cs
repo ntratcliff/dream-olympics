@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class ButtonPressZone : MinigameBahaviour
 {
     public GameObject Player;
-    public UnityEvent OnButtonPress;
+    public UnityAction<GameObject> OnButtonPress;
 
     private PlayerController playerController;
     private Zone zone;
@@ -21,7 +21,7 @@ public class ButtonPressZone : MinigameBahaviour
         zone = GetComponent<Zone>();
         playerController = Player.GetComponent<PlayerController>();
     }
-    
+
 
     // Update is called once per frame
     void Update()
@@ -29,13 +29,14 @@ public class ButtonPressZone : MinigameBahaviour
         if (GameRunning)
         {
             // handle button presses if player is in zone
-            if (zone.HasObjects 
+            if (zone.HasObjects
                 && Player
                 && zone.ObjectsInZone.Contains(Player)
                 && playerController.PlayerInfo.GetAxis("Action") > lastActionVal)
             {
                 Debug.Log("Button press!");
-                OnButtonPress.Invoke();
+                if (OnButtonPress != null)
+                    OnButtonPress(Player);
             }
 
             lastActionVal = playerController.PlayerInfo.GetAxis("Action");

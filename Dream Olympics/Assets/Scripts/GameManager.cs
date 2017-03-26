@@ -31,6 +31,11 @@ public class GameManager : MonoBehaviour
     private bool minigameLoading;
     private bool minigameLoaded;
     private bool minigameRunning;
+    private bool minigameOver;
+    public bool GameOver
+    {
+        get { return minigameOver; }
+    }
 
     private Scene managerScene;
 
@@ -66,7 +71,7 @@ public class GameManager : MonoBehaviour
         if (minigameRunning)
         {
             UnityEngine.Debug.LogWarning("Unloading minigame while the game is still running!");
-            sendPauseMessage();
+            PauseMinigame();
         }
 
         // TODO: get our player controllers back before unloading
@@ -164,6 +169,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void sendInitMessage()
     {
+        minigameOver = false;
         sendMinigameMessage((x, y) => x.Init(this));
     }
 
@@ -173,8 +179,24 @@ public class GameManager : MonoBehaviour
         minigameRunning = true;
     }
 
-    private void sendPauseMessage()
+    public void PauseMinigame()
     {
+        sendMinigameMessage((x, y) => x.PauseGame());
+        minigameRunning = false;
+    }
+
+    public void ResumeMinigame()
+    {
+        sendMinigameMessage((x, y) => x.ResumeGame());
+        minigameRunning = true;
+    }
+
+    /// <summary>
+    /// Called when the game has been won
+    /// </summary>
+    public void EndMinigame()
+    {
+        minigameOver = true;
         sendMinigameMessage((x, y) => x.PauseGame());
         minigameRunning = false;
     }
@@ -183,4 +205,5 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(loadMinigame(0));
     }
+
 }

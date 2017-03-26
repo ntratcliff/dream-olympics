@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CooktopController : MinigameBahaviour
+public class TableController : MinigameBahaviour
 {
     /// <summary>
     /// The number of required presses before the activity is complete
     /// </summary>
     public int RequiredPresses = 100;
 
+    public int Team = 1;
+
     [HideInInspector]
     public FoodHolder FoodSpot;
 
     private int currentPresses = 0;
+    private KitchenRelayController minigameController;
 
     private void Start()
     {
@@ -25,24 +28,22 @@ public class CooktopController : MinigameBahaviour
     {
         if (GameRunning)
         {
-            if (FoodSpot.HasFood && !FoodSpot.Food.IsCooked) // increment current presses if has food
+            KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
+            if (FoodSpot.HasFood && currentPresses < RequiredPresses) // increment current presses if has food
             {
                 currentPresses++;
 
-                FoodSpot.Food.CookedScalar = (float)currentPresses / RequiredPresses;
+                FoodSpot.Food.EatenScalar = (float)currentPresses / RequiredPresses;
             }
-            else if (!FoodSpot.HasFood && currentPresses < RequiredPresses) // put food on object
+            else if (!FoodSpot.HasFood && controller.FoodSpot.Food.IsCooked) // put food on object
             {
-                KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
                 FoodSpot.AddFood(controller.FoodSpot.RemoveFood());
             }
-            else if (FoodSpot.HasFood && FoodSpot.Food.IsCooked) // give food to player
+
+            if (FoodSpot.HasFood && FoodSpot.Food.IsEaten)
             {
-                KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
-                controller.FoodSpot.AddFood(FoodSpot.RemoveFood());
+                GetComponentInParent<KitchenRelayController>().GameOver(Team);
             }
         }
     }
-
-    
 }
