@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
 
     public Color DefaultNameColor, ConfirmColor;
 
-    private CanvasGroup pauseMenu;
+    private CanvasGroup pauseMenu, mainMenu;
 
     private float lastPauseVal = 0;
 
@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour
         loadingMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Loading Message").GetComponent<CanvasGroup>();
         readyMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Ready Message").GetComponent<CanvasGroup>();
         pauseMenu = GameObject.Find("Canvas/Pause Menu").GetComponent<CanvasGroup>();
+        mainMenu = GameObject.Find("Canvas/Main Menu").GetComponent<CanvasGroup>();
     }
 
     void Start()
@@ -320,14 +321,18 @@ public class GameManager : MonoBehaviour
 
     public void Unpause()
     {
-        // hide pause menu
-        pauseMenu.GetComponent<FadeCanvasGroup>().FadeOut();
-        pauseShown = false;
-
+        hidePauseMenu();
         if (scoreboard.alpha == 0)
         {
             ResumeMinigame();
         }
+    }
+
+    private void hidePauseMenu()
+    {  
+        // hide pause menu
+        pauseMenu.GetComponent<FadeCanvasGroup>().FadeOut();
+        pauseShown = false;
     }
 
     public void ResumeMinigame()
@@ -357,8 +362,28 @@ public class GameManager : MonoBehaviour
 
     public void PauseMenuQuit()
     {
-        // TODO: eventually just open main menu, unload main scene
-        Application.Quit();
+        StartCoroutine(unloadCurrentMinigame());
+        hidePauseMenu();
+        mainMenu.GetComponent<FadeCanvasGroup>().FadeIn();
+        StartCoroutine(hideScoreboardDelay(mainMenu.GetComponent<FadeCanvasGroup>().FadeInTime));
+    }
+
+    public void MainMenuStart()
+    {
+        // TODO: show some intermediary player join level
+        scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
+        float delay = scoreboard.GetComponent<FadeCanvasGroup>().FadeInTime;
+        StartCoroutine(hideMainMenuDelay(delay));
+
+        // TODO: shuffle minigames
+        StartCoroutine(loadMinigame(0, delay));
+    }
+
+    private IEnumerator hideMainMenuDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        mainMenu.GetComponent<FadeCanvasGroup>().FadeOut();
     }
 
     private IEnumerator showScoreboardDelay(float delay)
@@ -380,5 +405,10 @@ public class GameManager : MonoBehaviour
         readyMessage.alpha = 0f;
         loadingMessage.alpha = 1f;
         minigameLoad.alpha = 0f;
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

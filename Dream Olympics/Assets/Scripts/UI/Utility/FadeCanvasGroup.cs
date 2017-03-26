@@ -29,6 +29,8 @@ public class FadeCanvasGroup : MonoBehaviour
             elapsedTime += Time.deltaTime;
             group.alpha = Mathf.Lerp(from, target, elapsedTime / lerpTime);
         }
+
+        group.blocksRaycasts = group.alpha == 1f;
     }
 
     private void startFade()
