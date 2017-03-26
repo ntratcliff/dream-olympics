@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
             {
                 StartCoroutine(waitForPlayerConfirmation());
             }
-            else
+            else if(mainMenu.alpha == 0)
             {
                 sendStartMessage();
             }
