@@ -19,6 +19,7 @@ public class FadeCanvasGroup : MonoBehaviour
     private void Start()
     {
         group = GetComponent<CanvasGroup>();
+        target = group.alpha;
     }
 
     private void Update()

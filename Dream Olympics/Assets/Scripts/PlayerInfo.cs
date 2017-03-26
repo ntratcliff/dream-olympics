@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInfo : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class PlayerInfo : MonoBehaviour
     public int PlayerNum = 1;
     public GameObject Mesh;
     public int Score;
+    public GameObject ScoreboardObject;
+    public Text ScoreboardName, ScoreboardNumber;
     
     public float GetAxis(string axis)
     {

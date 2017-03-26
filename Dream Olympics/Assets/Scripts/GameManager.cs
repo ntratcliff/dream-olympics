@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -22,7 +23,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public int CurrentMinigame = -1;
 
-    public CanvasGroup Scoreboard;
     public float ShowScoreboardDelay = 1f;
 
     /// <summary>
@@ -42,10 +42,20 @@ public class GameManager : MonoBehaviour
 
     private Scene managerScene;
 
+    private CanvasGroup scoreboard, minigameLoad, loadingMessage, readyMessage;
+
+    public float LoadingMessageFadeTime = 0.6f;
+
+    public int StartDelaySeconds = 3;
+
+    public Color DefaultNameColor, ConfirmColor;
 
     void Awake()
     {
-
+        scoreboard = GameObject.Find("Canvas/Scoreboard").GetComponent<CanvasGroup>();
+        minigameLoad = GameObject.Find("Canvas/Scoreboard/MinigameLoad").GetComponent<CanvasGroup>();
+        loadingMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Loading Message").GetComponent<CanvasGroup>();
+        readyMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Ready Message").GetComponent<CanvasGroup>();
     }
 
     void Start()
@@ -54,7 +64,15 @@ public class GameManager : MonoBehaviour
         {
             // initialize the current scene
             initializeScene();
-            sendStartMessage();
+
+            if(scoreboard.alpha != 0)
+            {
+                StartCoroutine(waitForPlayerConfirmation());
+            }
+            else
+            {
+                sendStartMessage();
+            }
         }   
     }
 
@@ -95,8 +113,12 @@ public class GameManager : MonoBehaviour
     /// Loads a minigame
     /// </summary>
     /// <param name="name"></param>
-    private IEnumerator loadMinigame(int index)
+    private IEnumerator loadMinigame(int index, float delay)
     {
+        yield return new WaitForSeconds(delay);
+
+        minigameLoad.alpha = 1f; // TODO: fade in
+
         if (minigameLoaded)
             yield return unloadCurrentMinigame();
 
@@ -110,7 +132,6 @@ public class GameManager : MonoBehaviour
 
         while (!loadOperation.isDone)
         {
-            //TODO: show loading bar and update progress
             yield return new WaitForEndOfFrame();
         }
 
@@ -122,6 +143,69 @@ public class GameManager : MonoBehaviour
 
         // scene has finished loading, initialize
         initializeScene();
+
+        yield return new WaitForEndOfFrame();
+
+        // fade out loading message, fade in ready message
+        float elapsedTime = 0;
+        while(loadingMessage.alpha > 0f)
+        {
+            elapsedTime += Time.deltaTime;
+            loadingMessage.alpha = Mathf.Lerp(1f, 0f, elapsedTime / LoadingMessageFadeTime);
+            yield return new WaitForEndOfFrame();
+        }
+
+        elapsedTime = 0;
+        while (readyMessage.alpha < 1f)
+        {
+            elapsedTime += Time.deltaTime;
+            readyMessage.alpha = Mathf.Lerp(0f, 1f, elapsedTime / LoadingMessageFadeTime);
+            yield return new WaitForEndOfFrame();
+        }
+
+        StartCoroutine(waitForPlayerConfirmation());
+    }
+
+    /// <summary>
+    /// Wait for all players to be holding A before starting next game
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator waitForPlayerConfirmation()
+    {
+        readyMessage.alpha = 1f;
+        loadingMessage.alpha = 0f;
+        minigameLoad.alpha = 1f;
+
+        PlayerInfo[] players = GetComponentsInChildren<PlayerInfo>();
+        int playersConfirmed = 0;
+        while(playersConfirmed < players.Length)  // wait for players to confirm
+        {
+            playersConfirmed = 0;
+            // set color based on state
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i].GetAxis("Action") != 0)
+                {
+                    players[i].ScoreboardName.color = ConfirmColor;
+                    playersConfirmed++;
+                }
+                else
+                    players[i].ScoreboardName.color = DefaultNameColor;
+            }
+            yield return new WaitForEndOfFrame();
+        }
+
+        // fade out scoreboard
+        yield return hideScoreboardDelay(0.3f);
+
+        resetLoadMessage();
+
+        int secondsLeft = StartDelaySeconds;
+        while(--secondsLeft > StartDelaySeconds)
+        {
+            // TODO: update timer text here
+            yield return new WaitForSeconds(1);
+        }
 
         // TODO: move this to title card eventually
         sendStartMessage();
@@ -204,24 +288,32 @@ public class GameManager : MonoBehaviour
         minigameRunning = false;
 
         StartCoroutine(showScoreboardDelay(ShowScoreboardDelay));
+        StartCoroutine(loadMinigame(0, ShowScoreboardDelay + scoreboard.GetComponent<FadeCanvasGroup>().FadeInTime)); // TODO: cycle through games here
     }
 
     public void LoadTestMinigame()
     {
-        StartCoroutine(loadMinigame(0));
+        StartCoroutine(loadMinigame(0, 0));
     }
 
     private IEnumerator showScoreboardDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        Scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
+        scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
     }
 
     private IEnumerator hideScoreboardDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        Scoreboard.GetComponent<FadeCanvasGroup>().FadeOut();
+        scoreboard.GetComponent<FadeCanvasGroup>().FadeOut();
+    }
+
+    private void resetLoadMessage()
+    {
+        readyMessage.alpha = 0f;
+        loadingMessage.alpha = 1f;
+        minigameLoad.alpha = 0f;
     }
 }
