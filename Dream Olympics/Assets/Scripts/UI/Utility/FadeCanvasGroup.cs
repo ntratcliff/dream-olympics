@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class FadeCanvasGroup : MonoBehaviour
@@ -31,6 +33,7 @@ public class FadeCanvasGroup : MonoBehaviour
         }
 
         group.blocksRaycasts = group.alpha == 1f;
+        group.interactable = group.alpha == 1f;
     }
 
     private void startFade()
@@ -51,6 +54,11 @@ public class FadeCanvasGroup : MonoBehaviour
         target = 1f;
         lerpTime = FadeInTime;
         startFade();
+
+        // select first element on this form
+        Selectable[] selectables = GetComponentsInChildren<Selectable>();
+        if (selectables.Length > 0)
+            EventSystem.current.SetSelectedGameObject(selectables[0].gameObject);
     }
 
     public void SetAlpha(float a)
