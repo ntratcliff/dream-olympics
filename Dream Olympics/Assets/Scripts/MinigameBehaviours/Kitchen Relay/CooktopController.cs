@@ -25,20 +25,21 @@ public class CooktopController : MinigameBahaviour
     {
         if (GameRunning)
         {
+            KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
             if (FoodSpot.HasFood && !FoodSpot.Food.IsCooked) // increment current presses if has food
             {
                 currentPresses++;
 
                 FoodSpot.Food.CookedScalar = (float)currentPresses / RequiredPresses;
             }
-            else if (!FoodSpot.HasFood && currentPresses < RequiredPresses) // put food on object
+            else if (!FoodSpot.HasFood 
+                && currentPresses < RequiredPresses
+                && controller.FoodSpot.HasFood) // put food on object
             {
-                KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
                 FoodSpot.AddFood(controller.FoodSpot.RemoveFood());
             }
             else if (FoodSpot.HasFood && FoodSpot.Food.IsCooked) // give food to player
             {
-                KitchenRelayPlayer controller = player.GetComponent<KitchenRelayPlayer>();
                 controller.FoodSpot.AddFood(FoodSpot.RemoveFood());
             }
         }

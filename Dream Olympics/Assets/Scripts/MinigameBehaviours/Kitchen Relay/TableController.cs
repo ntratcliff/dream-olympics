@@ -35,7 +35,9 @@ public class TableController : MinigameBahaviour
 
                 FoodSpot.Food.EatenScalar = (float)currentPresses / RequiredPresses;
             }
-            else if (!FoodSpot.HasFood && controller.FoodSpot.Food.IsCooked) // put food on object
+            else if (!FoodSpot.HasFood 
+                && controller.FoodSpot.HasFood
+                && controller.FoodSpot.Food.IsCooked) // put food on object
             {
                 FoodSpot.AddFood(controller.FoodSpot.RemoveFood());
             }
