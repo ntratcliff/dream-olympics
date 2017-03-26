@@ -68,4 +68,12 @@ public class MinigameBahaviour : MonoBehaviour, IMinigameBehaviour
     {
         _gameRunning = true;
     }
+    
+    /// <summary>
+    /// Called when the game is over
+    /// </summary>
+    public void GameOver()
+    {
+        _gameRunning = false;
+    }
 }

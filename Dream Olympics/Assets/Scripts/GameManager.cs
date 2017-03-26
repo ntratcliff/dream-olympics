@@ -200,7 +200,7 @@ public class GameManager : MonoBehaviour
     public void EndMinigame()
     {
         minigameOver = true;
-        sendMinigameMessage((x, y) => x.PauseGame());
+        sendMinigameMessage((x, y) => x.GameOver());
         minigameRunning = false;
 
         StartCoroutine(showScoreboardDelay(ShowScoreboardDelay));

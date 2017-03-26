@@ -35,4 +35,9 @@ public interface IMinigameBehaviour : IEventSystemHandler
     /// Called when the game is resumed from pause
     /// </summary>
     void ResumeGame();
+
+    /// <summary>
+    /// Called when the game is over
+    /// </summary>
+    void GameOver();
 }
