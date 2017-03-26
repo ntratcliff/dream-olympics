@@ -50,4 +50,10 @@ public class FadeCanvasGroup : MonoBehaviour
         lerpTime = FadeInTime;
         startFade();
     }
+
+    public void SetAlpha(float a)
+    {
+        target = a;
+        group.alpha = a;
+    }
 }

@@ -198,12 +198,19 @@ public class GameManager : MonoBehaviour
         // fade out scoreboard
         yield return hideScoreboardDelay(0.3f);
 
+        // reset colors
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].ScoreboardName.color = DefaultNameColor;
+        }
+
         resetLoadMessage();
 
         int secondsLeft = StartDelaySeconds;
-        while(--secondsLeft > StartDelaySeconds)
+        while(secondsLeft > 0f)
         {
             // TODO: update timer text here
+            UnityEngine.Debug.Log(secondsLeft--);
             yield return new WaitForSeconds(1);
         }
 
@@ -293,6 +300,7 @@ public class GameManager : MonoBehaviour
 
     public void LoadTestMinigame()
     {
+        scoreboard.GetComponent<FadeCanvasGroup>().SetAlpha(1f);
         StartCoroutine(loadMinigame(0, 0));
     }
 
