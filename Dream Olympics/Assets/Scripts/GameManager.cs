@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public int CurrentMinigame = -1;
 
+    public CanvasGroup Scoreboard;
+    public float ShowScoreboardDelay = 1f;
+
     /// <summary>
     /// The minigame object in the scene
     /// </summary>
@@ -199,6 +202,8 @@ public class GameManager : MonoBehaviour
         minigameOver = true;
         sendMinigameMessage((x, y) => x.PauseGame());
         minigameRunning = false;
+
+        StartCoroutine(showScoreboardDelay(ShowScoreboardDelay));
     }
 
     public void LoadTestMinigame()
@@ -206,4 +211,17 @@ public class GameManager : MonoBehaviour
         StartCoroutine(loadMinigame(0));
     }
 
+    private IEnumerator showScoreboardDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        Scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
+    }
+
+    private IEnumerator hideScoreboardDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        Scoreboard.GetComponent<FadeCanvasGroup>().FadeOut();
+    }
 }
