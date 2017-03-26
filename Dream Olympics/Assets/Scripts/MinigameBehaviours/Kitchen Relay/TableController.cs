@@ -32,6 +32,7 @@ public class TableController : MinigameBahaviour
             if (FoodSpot.HasFood && currentPresses < RequiredPresses) // increment current presses if has food
             {
                 currentPresses++;
+                FoodSpot.Food.animator.SetBool("Eating", true);
 
                 FoodSpot.Food.EatenScalar = (float)currentPresses / RequiredPresses;
             }

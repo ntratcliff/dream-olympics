@@ -29,8 +29,11 @@ public class CooktopController : MinigameBahaviour
             if (FoodSpot.HasFood && !FoodSpot.Food.IsCooked) // increment current presses if has food
             {
                 currentPresses++;
-
+                
                 FoodSpot.Food.CookedScalar = (float)currentPresses / RequiredPresses;
+
+                FoodSpot.Food.animator.SetFloat("CookedScalar", FoodSpot.Food.CookedScalar);
+                Debug.Log("IncreasingCookedScalar");
             }
             else if (!FoodSpot.HasFood 
                 && currentPresses < RequiredPresses

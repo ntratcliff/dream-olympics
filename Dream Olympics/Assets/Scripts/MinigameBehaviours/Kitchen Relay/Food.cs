@@ -6,7 +6,9 @@ public class Food : MinigameBahaviour
 {
     public float CookedScalar = 0f;
     public float EatenScalar = 0f;
-    
+
+    public Animator animator;
+
     public bool IsCooked
     {
         get { return CookedScalar >= 1f; }
