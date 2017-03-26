@@ -243,6 +243,9 @@ public class GameManager : MonoBehaviour
                     {
                         players[i].gameObject.SetActive(false);
                     }
+
+                    // reinitialize
+                    sendInitMessage();
                 }
                 break;
             }
