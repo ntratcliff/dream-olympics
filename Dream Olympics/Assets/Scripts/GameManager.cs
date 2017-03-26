@@ -35,6 +35,9 @@ public class GameManager : MonoBehaviour
     private bool minigameLoaded;
     private bool minigameRunning;
     private bool minigameOver;
+
+    private bool pauseShown;
+
     public bool GameOver
     {
         get { return minigameOver; }
@@ -93,13 +96,13 @@ public class GameManager : MonoBehaviour
         if (minigameLoaded)
         {
             if (lastPauseVal < Input.GetAxis("Pause")
-                && minigameRunning) // pause was just pressed!
+                && !pauseShown ) // pause was just pressed!
             {
-                PauseMinigame();
+                Pause();
             }
             else if (lastPauseVal < Input.GetAxis("Pause"))
             {
-                ResumeMinigame();
+                Unpause();
             }
         }
 
@@ -297,20 +300,38 @@ public class GameManager : MonoBehaviour
         minigameRunning = true;
     }
 
-    public void PauseMinigame()
+    public void Pause()
     {
         // show pause menu
         pauseMenu.GetComponent<FadeCanvasGroup>().FadeIn();
+        pauseShown = true;
 
+        if (scoreboard.alpha == 0f)
+        {
+            PauseMinigame();
+        }
+    }
+
+    public void PauseMinigame()
+    {
         sendMinigameMessage((x, y) => x.PauseGame());
         minigameRunning = false;
     }
 
-    public void ResumeMinigame()
+    public void Unpause()
     {
         // hide pause menu
         pauseMenu.GetComponent<FadeCanvasGroup>().FadeOut();
+        pauseShown = false;
 
+        if (scoreboard.alpha == 0)
+        {
+            ResumeMinigame();
+        }
+    }
+
+    public void ResumeMinigame()
+    {
         sendMinigameMessage((x, y) => x.ResumeGame());
         minigameRunning = true;
     }
