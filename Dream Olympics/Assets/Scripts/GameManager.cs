@@ -42,7 +42,10 @@ public class GameManager : MonoBehaviour
 
     private Scene managerScene;
 
-    private CanvasGroup scoreboard, minigameLoad, loadingMessage, readyMessage;
+    private CanvasGroup scoreboard, 
+        minigameLoad, 
+        loadingMessage, 
+        readyMessage;
 
     public float LoadingMessageFadeTime = 0.6f;
 
@@ -50,22 +53,30 @@ public class GameManager : MonoBehaviour
 
     public Color DefaultNameColor, ConfirmColor;
 
+    private CanvasGroup pauseMenu;
+
+    private float lastPauseVal = 0;
+
     void Awake()
     {
         scoreboard = GameObject.Find("Canvas/Scoreboard").GetComponent<CanvasGroup>();
         minigameLoad = GameObject.Find("Canvas/Scoreboard/MinigameLoad").GetComponent<CanvasGroup>();
         loadingMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Loading Message").GetComponent<CanvasGroup>();
         readyMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Ready Message").GetComponent<CanvasGroup>();
+        pauseMenu = GameObject.Find("Canvas/Pause Menu").GetComponent<CanvasGroup>();
     }
 
     void Start()
     {
+        if (pauseMenu.alpha != 0)
+            pauseMenu.GetComponent<FadeCanvasGroup>().SetAlpha(0);
+
         if (Debug)
         {
             // initialize the current scene
             initializeScene();
 
-            if(scoreboard.alpha != 0)
+            if (scoreboard.alpha != 0)
             {
                 StartCoroutine(waitForPlayerConfirmation());
             }
@@ -73,13 +84,26 @@ public class GameManager : MonoBehaviour
             {
                 sendStartMessage();
             }
-        }   
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (minigameLoaded)
+        {
+            if (lastPauseVal < Input.GetAxis("Pause")
+                && minigameRunning) // pause was just pressed!
+            {
+                PauseMinigame();
+            }
+            else if (lastPauseVal < Input.GetAxis("Pause"))
+            {
+                ResumeMinigame();
+            }
+        }
 
+        lastPauseVal = Input.GetAxis("Pause");
     }
 
     /// <summary>
@@ -148,7 +172,7 @@ public class GameManager : MonoBehaviour
 
         // fade out loading message, fade in ready message
         float elapsedTime = 0;
-        while(loadingMessage.alpha > 0f)
+        while (loadingMessage.alpha > 0f)
         {
             elapsedTime += Time.deltaTime;
             loadingMessage.alpha = Mathf.Lerp(1f, 0f, elapsedTime / LoadingMessageFadeTime);
@@ -178,7 +202,7 @@ public class GameManager : MonoBehaviour
 
         PlayerInfo[] players = GetComponentsInChildren<PlayerInfo>();
         int playersConfirmed = 0;
-        while(playersConfirmed < players.Length)  // wait for players to confirm
+        while (playersConfirmed < players.Length)  // wait for players to confirm
         {
             playersConfirmed = 0;
             // set color based on state
@@ -207,7 +231,7 @@ public class GameManager : MonoBehaviour
         resetLoadMessage();
 
         int secondsLeft = StartDelaySeconds;
-        while(secondsLeft > 0f)
+        while (secondsLeft > 0f)
         {
             // TODO: update timer text here
             UnityEngine.Debug.Log(secondsLeft--);
@@ -229,7 +253,7 @@ public class GameManager : MonoBehaviour
 
         sendInitMessage();
 
-        
+
     }
 
     /// <summary>
@@ -275,12 +299,18 @@ public class GameManager : MonoBehaviour
 
     public void PauseMinigame()
     {
+        // show pause menu
+        pauseMenu.GetComponent<FadeCanvasGroup>().FadeIn();
+
         sendMinigameMessage((x, y) => x.PauseGame());
         minigameRunning = false;
     }
 
     public void ResumeMinigame()
     {
+        // hide pause menu
+        pauseMenu.GetComponent<FadeCanvasGroup>().FadeOut();
+
         sendMinigameMessage((x, y) => x.ResumeGame());
         minigameRunning = true;
     }
@@ -302,6 +332,12 @@ public class GameManager : MonoBehaviour
     {
         scoreboard.GetComponent<FadeCanvasGroup>().SetAlpha(1f);
         StartCoroutine(loadMinigame(0, 0));
+    }
+
+    public void PauseMenuQuit()
+    {
+        // TODO: eventually just open main menu, unload main scene
+        Application.Quit();
     }
 
     private IEnumerator showScoreboardDelay(float delay)
