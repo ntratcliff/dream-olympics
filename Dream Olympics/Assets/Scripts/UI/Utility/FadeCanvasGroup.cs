@@ -31,6 +31,7 @@ public class FadeCanvasGroup : MonoBehaviour
         }
 
         group.blocksRaycasts = group.alpha == 1f;
+        group.interactable = group.alpha == 1f;
     }
 
     private void startFade()

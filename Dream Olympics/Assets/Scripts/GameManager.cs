@@ -393,6 +393,7 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(unloadCurrentMinigame());
         hidePauseMenu();
+
         mainMenu.GetComponent<FadeCanvasGroup>().FadeIn();
         StartCoroutine(hideScoreboardDelay(mainMenu.GetComponent<FadeCanvasGroup>().FadeInTime));
     }
