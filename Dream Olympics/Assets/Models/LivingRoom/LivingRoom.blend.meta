@@ -6,10 +6,19 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Cube_007
+    100004: Plane
     400000: //RootNode
+    400002: Cube_007
+    400004: Plane
     2300000: //RootNode
+    2300002: Cube_007
+    2300004: Plane
     3300000: //RootNode
+    3300002: Cube_007
+    3300004: Plane
     4300000: Plane
+    4300002: Cube_007
     7400000: Default Take
     9500000: //RootNode
   materials:
