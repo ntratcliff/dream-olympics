@@ -14,6 +14,7 @@ public class Zone : MonoBehaviour
     public void Start()
     {
         meshRenderer = GetComponent<MeshRenderer>();
+        ObjectsInZone = new List<GameObject>();
     }
 
     public bool HasObjects
