@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
 
     public Color DefaultNameColor, ConfirmColor;
 
-    private CanvasGroup pauseMenu, mainMenu;
+    private CanvasGroup pauseMenu, mainMenu, aboutMenu;
 
     private float lastPauseVal = 0;
 
@@ -76,12 +76,16 @@ public class GameManager : MonoBehaviour
         readyMessage = GameObject.Find("Canvas/Scoreboard/MinigameLoad/Ready Message").GetComponent<CanvasGroup>();
         pauseMenu = GameObject.Find("Canvas/Pause Menu").GetComponent<CanvasGroup>();
         mainMenu = GameObject.Find("Canvas/Main Menu").GetComponent<CanvasGroup>();
+        aboutMenu = GameObject.Find("Canvas/About Menu").GetComponent<CanvasGroup>();
     }
 
     void Start()
     {
         if (pauseMenu.alpha != 0)
             pauseMenu.GetComponent<FadeCanvasGroup>().SetAlpha(0);
+
+        if (aboutMenu.alpha != 0)
+            aboutMenu.GetComponent<FadeCanvasGroup>().SetAlpha(0);
 
         if (mainMenu.alpha == 1)
         {
@@ -521,5 +525,20 @@ public class GameManager : MonoBehaviour
     public void SkipCurrentMinigame()
     {
         StartCoroutine(loadMinigame(getNextMinigame(), 0, true));
+    }
+
+    public void ShowAboutMenu()
+    {
+        // disable main menu interactions
+        EventSystem.current.SetSelectedGameObject(null);
+        aboutMenu.GetComponent<FadeCanvasGroup>().FadeIn();
+        mainMenu.GetComponent<FadeCanvasGroup>().Interactable = false;
+    }
+
+    public void HideAboutMenu()
+    {
+        aboutMenu.GetComponent<FadeCanvasGroup>().FadeOut();
+        mainMenu.GetComponent<FadeCanvasGroup>().Interactable = true;
+        mainMenu.GetComponent<FadeCanvasGroup>().FadeIn(); // calling fadein just to reselect selectables
     }
 }
