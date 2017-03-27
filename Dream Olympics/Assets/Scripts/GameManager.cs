@@ -144,7 +144,7 @@ public class GameManager : MonoBehaviour
 
         AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(Minigames[CurrentMinigame]);
 
-        while (!unloadOperation.isDone)
+        while (unloadOperation != null && !unloadOperation.isDone)
         {
             yield return new WaitForEndOfFrame();
         }
@@ -445,6 +445,12 @@ public class GameManager : MonoBehaviour
     public void MainMenuStart()
     {
         EventSystem.current.SetSelectedGameObject(null);
+
+        PlayerInfo[] players = GetComponentsInChildren<PlayerInfo>();
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].Score = 0;
+        }
 
         // TODO: show some intermediary player join level
         scoreboard.GetComponent<FadeCanvasGroup>().FadeIn();
