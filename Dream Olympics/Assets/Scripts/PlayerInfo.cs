@@ -10,7 +10,8 @@ public class PlayerInfo : MonoBehaviour
     public GameObject Mesh;
     public int Score;
     public GameObject ScoreboardObject;
-    public Text ScoreboardName, ScoreboardNumber;
+    public Image ScoreboardName;
+    public Text ScoreboardNumber;
     
     public float GetAxis(string axis)
     {
