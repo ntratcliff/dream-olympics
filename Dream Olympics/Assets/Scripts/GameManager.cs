@@ -216,7 +216,14 @@ public class GameManager : MonoBehaviour
         loadingMessage.alpha = 0f;
         minigameLoad.alpha = 1f;
 
-        PlayerInfo[] players = GetComponentsInChildren<PlayerInfo>();
+        Transform playersObject = this.transform.FindChild("Players");
+        PlayerInfo[] players = new PlayerInfo[playersObject.childCount];
+        for (int i = 0; i < playersObject.childCount; i++)
+        {
+            players[i] = playersObject.GetChild(i).GetComponent<PlayerInfo>();
+            players[i].gameObject.SetActive(true);
+        }
+
         int playersConfirmed = 0;
         float confirmTime = 0f;
         while (playersConfirmed < players.Length)  // wait for players to confirm
@@ -246,13 +253,13 @@ public class GameManager : MonoBehaviour
             {
                 for(int i = 0; i < players.Length; i++)
                 {
-                    if(players[i].GetAxis("Action") == 0)
+                    if (players[i].GetAxis("Action") == 0)
                     {
                         players[i].gameObject.SetActive(false);
                     }
+                    else if (players[i].GetAxis("Action") == 1)
+                        players[i].gameObject.SetActive(true);
 
-                    // reinitialize
-                    sendInitMessage();
                 }
                 break;
             }
@@ -261,6 +268,7 @@ public class GameManager : MonoBehaviour
                 confirmTime = 0;
             }
         }
+        sendInitMessage();
 
         // fade out scoreboard
         yield return hideScoreboardDelay(0.3f);
@@ -293,9 +301,6 @@ public class GameManager : MonoBehaviour
         MinigameObject = GameObject.Find("Minigame");
         if (!MinigameObject)
             UnityEngine.Debug.LogError("Could not find Minigame object in scene!");
-
-        sendInitMessage();
-
 
     }
 
