@@ -36,6 +36,9 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public GameObject MinigameObject;
 
+    [HideInInspector]
+    public int ActivePlayers;
+
     private bool minigameLoading;
     private bool minigameLoaded;
     private bool minigameRunning;
@@ -50,9 +53,9 @@ public class GameManager : MonoBehaviour
 
     private Scene managerScene;
 
-    private CanvasGroup scoreboard, 
-        minigameLoad, 
-        loadingMessage, 
+    private CanvasGroup scoreboard,
+        minigameLoad,
+        loadingMessage,
         readyMessage;
 
     public float LoadingMessageFadeTime = 0.6f;
@@ -96,7 +99,7 @@ public class GameManager : MonoBehaviour
             {
                 StartCoroutine(waitForPlayerConfirmation());
             }
-            else if(mainMenu.alpha == 0)
+            else if (mainMenu.alpha == 0)
             {
                 sendStartMessage();
             }
@@ -109,7 +112,7 @@ public class GameManager : MonoBehaviour
         if (minigameLoaded)
         {
             if (lastPauseVal < Input.GetAxis("Pause")
-                && !pauseShown ) // pause was just pressed!
+                && !pauseShown) // pause was just pressed!
             {
                 Pause();
             }
@@ -153,7 +156,7 @@ public class GameManager : MonoBehaviour
     /// Loads a minigame
     /// </summary>
     /// <param name="name"></param>
-    private IEnumerator loadMinigame(int index, float delay)
+    private IEnumerator loadMinigame(int index, float delay, bool skipConfirm = false)
     {
         yield return new WaitForSeconds(delay);
 
@@ -203,7 +206,14 @@ public class GameManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        StartCoroutine(waitForPlayerConfirmation());
+        if (skipConfirm)
+        {
+            StartCoroutine(startMinigame());
+        }
+        else
+        {
+            StartCoroutine(waitForPlayerConfirmation());
+        }
     }
 
     /// <summary>
@@ -243,15 +253,15 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForEndOfFrame();
 
-            if(playersConfirmed >= 2 
+            if (playersConfirmed >= 2
                 && playersConfirmed < players.Length
                 && confirmTime < PlayerConfirmTime) // increment counter
             {
                 confirmTime += Time.deltaTime;
             }
-            else if(confirmTime >= PlayerConfirmTime) // remove inactive players and start game
+            else if (confirmTime >= PlayerConfirmTime) // remove inactive players and start game
             {
-                for(int i = 0; i < players.Length; i++)
+                for (int i = 0; i < players.Length; i++)
                 {
                     if (players[i].GetAxis("Action") == 0)
                     {
@@ -268,6 +278,21 @@ public class GameManager : MonoBehaviour
                 confirmTime = 0;
             }
         }
+        ActivePlayers = playersConfirmed;
+
+        yield return startMinigame();
+
+    }
+
+    private IEnumerator startMinigame()
+    {
+        Transform playersObject = this.transform.FindChild("Players");
+        PlayerInfo[] players = new PlayerInfo[playersObject.childCount];
+        for (int i = 0; i < playersObject.childCount; i++)
+        {
+            players[i] = playersObject.GetChild(i).GetComponent<PlayerInfo>();
+        }
+
         sendInitMessage();
 
         // fade out scoreboard
@@ -289,7 +314,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1);
         }
 
-        // TODO: move this to title card eventually
+        // TODO: move this to title card eventually`
         sendStartMessage();
     }
 
@@ -373,7 +398,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void hidePauseMenu()
-    {  
+    {
         // hide pause menu
         pauseMenu.GetComponent<FadeCanvasGroup>().FadeOut();
         pauseShown = false;
@@ -395,7 +420,7 @@ public class GameManager : MonoBehaviour
         minigameRunning = false;
 
         StartCoroutine(showScoreboardDelay(ShowScoreboardDelay));
-        StartCoroutine(loadMinigame(0, ShowScoreboardDelay + scoreboard.GetComponent<FadeCanvasGroup>().FadeInTime)); // TODO: cycle through games here
+        StartCoroutine(loadMinigame(getNextMinigame(), ShowScoreboardDelay + scoreboard.GetComponent<FadeCanvasGroup>().FadeInTime));
     }
 
     public void LoadTestMinigame()
@@ -427,8 +452,23 @@ public class GameManager : MonoBehaviour
         StartCoroutine(hideMainMenuDelay(delay));
 
         // TODO: shuffle minigames
+        shuffleMinigames();
         StartCoroutine(loadMinigame(0, delay));
 
+    }
+
+    private void shuffleMinigames()
+    {
+        for (int i = 0; i < Minigames.Length; i++)
+        {
+            // get random index
+            int ind = Random.Range(0, i + 1);
+
+            // swap
+            string game = Minigames[ind];
+            Minigames[ind] = Minigames[i];
+            Minigames[i] = game;
+        }
     }
 
     private IEnumerator hideMainMenuDelay(float delay)
@@ -462,5 +502,18 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    private int getNextMinigame()
+    {
+        if (CurrentMinigame + 1 == Minigames.Length)
+            return 0;
+
+        return CurrentMinigame + 1;
+    }
+
+    public void SkipCurrentMinigame()
+    {
+        StartCoroutine(loadMinigame(getNextMinigame(), 0, true));
     }
 }

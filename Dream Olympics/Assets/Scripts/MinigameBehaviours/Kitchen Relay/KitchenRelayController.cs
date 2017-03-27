@@ -7,6 +7,16 @@ public class KitchenRelayController : MinigameBahaviour
     public PlayerController[] Team1;
     public PlayerController[] Team2;
 
+    public override void Init(GameManager manager)
+    {
+        base.Init(manager);
+
+        if (manager.ActivePlayers < 4) // skip this gamemode if too few players
+        {
+            manager.SkipCurrentMinigame();
+        }
+    }
+
     /// <summary>
     /// Ends the minigame, and declares a winner
     /// </summary>
